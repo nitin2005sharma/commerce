@@ -1,6 +1,6 @@
 # Documentation Index
 
-Last updated: April 26, 2026
+Last updated: April 27, 2026
 
 This folder is the main documentation hub for the ecommerce application. It explains what the application does, how the code is organized, how the frontend and backend communicate, and how to run or extend the project.
 

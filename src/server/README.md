@@ -1,338 +1,224 @@
-# Node.js Server - Browser/Device Compatibility & Best Practices
+# Ecommerce Server
 
-This Node.js server has been enhanced with comprehensive browser and device compatibility features, security best practices, and production-ready configurations.
+This is the Express and Prisma backend for the ecommerce platform.
 
-## 🚀 Features
+It powers authentication, catalog management, cart, checkout, orders, payments, shipment tracking, chat, shared carts, goal bundles, smart shopping workflows, analytics, reports, logs, and webhooks.
 
-### Browser & Device Compatibility
+## Stack
 
-#### 1. **Enhanced CORS Configuration**
+- Node.js
+- Express
+- TypeScript
+- Prisma ORM
+- PostgreSQL
+- Redis-backed sessions/cache
+- Socket.IO
+- Apollo GraphQL
+- Stripe
+- Passport social auth
+- Cloudinary
+- Winston and Morgan
+- Swagger
 
-- **Multi-origin support**: Configurable allowed origins for different environments
-- **Mobile app support**: Allows requests with no origin (mobile apps, curl)
-- **Flexible headers**: Supports custom headers for device detection and API versioning
-- **Preflight handling**: Proper OPTIONS request handling for complex requests
+## Key Files
 
-#### 2. **Device Detection**
+| Path | Purpose |
+| --- | --- |
+| `src/app.ts` | Creates the Express app, middleware stack, routes, Socket.IO, GraphQL, Swagger, and error handling |
+| `src/server.ts` | Starts the HTTP server |
+| `src/routes/v1/index.ts` | Mounts versioned REST modules |
+| `src/modules` | Domain modules |
+| `src/infra` | Database, Redis, Stripe, Socket.IO, Passport, Cloudinary, logging |
+| `src/shared` | Shared middleware, errors, utils, templates, and types |
+| `prisma/schema.prisma` | Database schema |
+| `prisma/migrations` | Database migrations |
+| `seeds/seed.ts` | Development seed data |
 
-- **Automatic detection**: Detects device type (mobile, tablet, desktop)
-- **Platform identification**: Identifies iOS, Android, or web platforms
-- **Browser detection**: Detects browser type and version
-- **Response headers**: Adds device info to response headers for client-side handling
+## Modules
 
-#### 3. **API Versioning**
+| Module | Purpose |
+| --- | --- |
+| `address` | Customer addresses |
+| `analytics` | Dashboard metrics, exports, GraphQL analytics |
+| `attribute` | Product attributes and values |
+| `auth` | Sign up, sign in, sign out, refresh token, password reset, social auth |
+| `cart` | Active cart and cart items |
+| `category` | Product categories |
+| `chat` | Support chats and messages |
+| `checkout` | Stripe checkout, recovery, retry, restore, failure/cancel handling |
+| `goal` | Goal templates, curated bundles, custom bundles, frequent bundles |
+| `logs` | System log access |
+| `order` | Orders, tracking, companion, goal success, reminders |
+| `payment` | Payment records |
+| `product` | Products and product GraphQL |
+| `reports` | Report generation |
+| `review` | Product reviews |
+| `section` | Homepage sections |
+| `shared-cart` | Collaborative carts |
+| `shipment` | Shipment tracking and courier provider layer |
+| `shopping-assistant` | Shopping help endpoint |
+| `transaction` | Transaction views/status updates |
+| `user` | Users, admins, profiles |
+| `variant` | Product variants, SKU lookup, restocks |
+| `webhook` | Stripe webhook processing |
 
-- **Multiple version support**: Supports v1, v2, etc.
-- **Flexible versioning**: Version can be specified via URL, headers, or query params
-- **Backward compatibility**: Ensures API changes don't break existing clients
-- **Version validation**: Validates requested versions and provides helpful error messages
+## REST API Mounts
 
-### Security Best Practices
+Base path: `/api/v1`
 
-#### 1. **Enhanced Security Headers**
+```text
+/users
+/auth
+/products
+/transactions
+/reviews
+/categories
+/cart
+/checkout
+/reports
+/analytics
+/logs
+/orders
+/shipment
+/payments
+/addresses
+/sections
+/attributes
+/chat
+/variants
+/goals
+/shared-carts
+/shopping-assistant
+```
 
-- **Content Security Policy**: Prevents XSS attacks
-- **HSTS**: Forces HTTPS connections
-- **Frame protection**: Prevents clickjacking attacks
-- **XSS protection**: Additional XSS filtering
-- **Referrer policy**: Controls referrer information
+Webhook path:
 
-#### 2. **Input Validation & Sanitization**
+```text
+/api/v1/webhook
+```
 
-- **Request size limits**: Prevents large payload attacks
-- **MongoDB sanitization**: Prevents NoSQL injection
-- **XSS cleaning**: Removes malicious scripts
-- **Parameter pollution protection**: Prevents HTTP parameter pollution
+## GraphQL and Realtime
 
-#### 3. **Rate Limiting**
+GraphQL is configured in:
 
-- **IP-based limiting**: Prevents abuse from single sources
-- **Configurable windows**: 15-minute windows with 100 requests per IP
-- **Standard headers**: Includes rate limit info in response headers
+```text
+src/graphql
+```
 
-### Production Readiness
+Feature GraphQL resolvers live under module folders such as:
 
-#### 1. **Health Checks**
+```text
+src/modules/product/graphql
+src/modules/transaction/graphql
+src/modules/analytics/graphql
+```
 
-- **Basic health check**: `/health` - Simple status endpoint
-- **Detailed health check**: `/health/detailed` - Full system status
-- **Kubernetes probes**: `/ready` and `/live` endpoints for container orchestration
-- **Dependency monitoring**: Database and Redis connection status
+Socket.IO is configured in:
 
-#### 2. **Graceful Shutdown**
+```text
+src/infra/socket/socket.ts
+```
 
-- **Signal handling**: Proper SIGTERM and SIGINT handling
-- **Connection cleanup**: Closes server gracefully
-- **Timeout protection**: Forces shutdown after 30 seconds
-- **Error logging**: Comprehensive error tracking
+It supports chat and real-time order/transaction style updates.
 
-#### 3. **Enhanced Error Handling**
+## Environment
 
-- **Device-aware errors**: Different error responses based on device type
-- **Helpful messages**: Provides guidance for common errors
-- **Structured responses**: Consistent error format across all endpoints
-- **Development support**: Stack traces in development mode
+Use `.env.example` as the template.
 
-#### 4. **Request Timeout Handling**
+Important local variables:
 
-- **Configurable timeouts**: 30-second default timeout
-- **Request/response timeouts**: Separate handling for both
-- **Graceful degradation**: Proper timeout responses
-
-## 📋 Configuration
-
-### Environment Variables
-
-```bash
-# Server Configuration
+```env
+DATABASE_URL=postgresql://postgres:password@localhost:5432/ss_commerce
+NODE_ENV=development
 PORT=5000
-NODE_ENV=production
-
-# Security
-COOKIE_SECRET=your-secret-key
-SESSION_SECRET=your-session-secret
-
-# CORS Origins (comma-separated)
-ALLOWED_ORIGINS=http://localhost:3000,https://yourdomain.com
-
-# Rate Limiting
-RATE_LIMIT_WINDOW_MS=900000  # 15 minutes
-RATE_LIMIT_MAX_REQUESTS=100
-
-# Request Limits
-REQUEST_LIMIT_JSON=10mb
-REQUEST_LIMIT_URLENCODED=10mb
-REQUEST_LIMIT_RAW=50mb
-
-# Timeouts
-RESPONSE_TIMEOUT=30000  # 30 seconds
+REDIS_URL=redis://localhost:6379
+CLIENT_URL_DEV=http://localhost:3000
+ALLOWED_ORIGINS=http://localhost:3000
+ACCESS_TOKEN_SECRET=change-me
+REFRESH_TOKEN_SECRET=change-me
+SESSION_SECRET=change-me
+COOKIE_SECRET=change-me
+STRIPE_SECRET_KEY=...
+STRIPE_WEBHOOK_SECRET=...
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+EMAIL_USER=...
+EMAIL_PASS=...
 ```
 
-### CORS Configuration
+## Commands
 
-The server supports multiple origins and automatically handles:
+Install:
 
-- Development environments (localhost variants)
-- Production domains
-- Mobile applications
-- API clients
-
-### Security Headers
-
-All security headers are automatically configured for:
-
-- Modern browsers
-- Mobile devices
-- API clients
-- Cross-origin requests
-
-## 🔧 Usage Examples
-
-### API Versioning
-
-```javascript
-// URL-based versioning
-GET /api/v1/users
-GET /api/v2/users
-
-// Header-based versioning
-GET /api/users
-X-API-Version: v2
-
-// Query parameter versioning
-GET /api/users?version=v2
+```powershell
+npm install
 ```
 
-### Device Detection
+Generate Prisma client:
 
-```javascript
-// Server automatically detects and adds headers:
-X-Device-Type: mobile
-X-Platform: ios
-X-Browser: Safari
-X-Browser-Version: 15
+```powershell
+npx prisma generate
 ```
 
-### Health Checks
+Apply migrations locally:
 
-```bash
-# Basic health check
-curl http://localhost:5000/health
-
-# Detailed health check
-curl http://localhost:5000/health/detailed
-
-# Kubernetes readiness probe
-curl http://localhost:5000/ready
-
-# Kubernetes liveness probe
-curl http://localhost:5000/live
+```powershell
+npx prisma migrate dev
 ```
 
-## 🛡️ Security Features
+Seed database:
 
-### Request Validation
-
-- **Size limits**: Prevents large payload attacks
-- **Content validation**: Validates JSON and form data
-- **Header validation**: Validates required headers
-- **Method validation**: Only allows specified HTTP methods
-
-### Error Handling
-
-- **No information leakage**: Doesn't expose internal errors
-- **Structured responses**: Consistent error format
-- **Logging**: Comprehensive error logging for debugging
-- **Rate limiting**: Prevents abuse and DoS attacks
-
-## 📱 Mobile Compatibility
-
-### Mobile-Specific Features
-
-- **Touch-friendly endpoints**: Optimized for mobile interactions
-- **Reduced payload sizes**: Efficient data transfer
-- **Offline support**: Graceful handling of network issues
-- **Progressive enhancement**: Works with basic browsers
-
-### Device Detection
-
-- **Automatic detection**: No client-side code required
-- **Platform-specific responses**: Tailored responses for different platforms
-- **Browser compatibility**: Works with all major mobile browsers
-
-## 🚀 Performance Optimizations
-
-### Compression
-
-- **Gzip compression**: Reduces response sizes
-- **Selective compression**: Only compresses appropriate content types
-- **Configurable levels**: Adjustable compression levels
-
-### Caching
-
-- **ETag support**: Efficient caching headers
-- **Cache control**: Proper cache directives
-- **Conditional requests**: Support for If-Modified-Since headers
-
-## 📊 Monitoring & Logging
-
-### Health Monitoring
-
-- **Real-time status**: Live system health information
-- **Dependency monitoring**: Database and external service status
-- **Performance metrics**: Response times and throughput
-- **Error tracking**: Comprehensive error logging
-
-### Logging
-
-- **Structured logging**: JSON format for easy parsing
-- **Request logging**: All requests are logged with metadata
-- **Error logging**: Detailed error information
-- **Performance logging**: Response times and resource usage
-
-## 🔄 Deployment
-
-### Docker Support
-
-The server includes Docker configuration for easy deployment:
-
-```bash
-# Build the image
-docker build -t your-app .
-
-# Run the container
-docker run -p 5000:5000 your-app
+```powershell
+npm run seed
 ```
 
-### Environment-Specific Configurations
+Run development server:
 
-- **Development**: Enhanced debugging and logging
-- **Production**: Optimized for performance and security
-- **Testing**: Isolated configuration for testing
-
-## 📚 API Documentation
-
-### Swagger Integration
-
-- **Auto-generated docs**: Based on route definitions
-- **Interactive testing**: Test endpoints directly from docs
-- **Schema validation**: Automatic request/response validation
-- **Version support**: Documentation for each API version
-
-## 🧪 Testing
-
-### Health Check Testing
-
-```bash
-# Test basic health
-curl -f http://localhost:5000/health
-
-# Test detailed health
-curl -f http://localhost:5000/health/detailed
-
-# Test readiness
-curl -f http://localhost:5000/ready
+```powershell
+npm run dev
 ```
 
-### CORS Testing
+Build:
 
-```bash
-# Test CORS preflight
-curl -X OPTIONS -H "Origin: http://localhost:3000" \
-  -H "Access-Control-Request-Method: POST" \
-  http://localhost:5000/api/v1/users
+```powershell
+npm run build
 ```
 
-## 🔧 Troubleshooting
+Start compiled server:
 
-### Common Issues
+```powershell
+npm run start
+```
 
-1. **CORS Errors**
+## Local URLs
 
-   - Check allowed origins configuration
-   - Verify preflight request handling
-   - Ensure credentials are properly configured
+- API: `http://localhost:5000/api/v1`
+- GraphQL: `http://localhost:5000/api/v1/graphql`
+- Swagger: `http://localhost:5000/api-docs`
+- Health: `http://localhost:5000/health`
 
-2. **Rate Limiting**
+## Data Model
 
-   - Check rate limit configuration
-   - Monitor rate limit headers in responses
-   - Adjust limits for your use case
+The Prisma schema includes:
 
-3. **Timeout Issues**
+- users, addresses, auth roles
+- products, variants, categories, attributes, reviews
+- stock movements and restocks
+- carts, cart events, checkout attempts, checkout recovery
+- orders, order items, payments, shipments, transactions, tracking events
+- goal templates, goal bundles, custom bundles, bundle items
+- order companion, companion tasks, care guides, warranties, reminders
+- goal success check-ins, stages, steps, and interventions
+- shared carts, members, votes, notes, assignments, activity
+- chats, messages, analytics, reports, logs
 
-   - Check request/response timeout settings
-   - Monitor server performance
-   - Optimize slow database queries
+See `../../docs/DATA_MODEL.md` for the full explanation.
 
-4. **Health Check Failures**
-   - Verify database connectivity
-   - Check Redis connection
-   - Review server logs for errors
+## Development Notes
 
-## 📈 Best Practices
-
-### Development
-
-1. **Use environment variables** for configuration
-2. **Test with different devices** and browsers
-3. **Monitor health checks** during development
-4. **Use structured logging** for debugging
-
-### Production
-
-1. **Set up monitoring** for health checks
-2. **Configure proper CORS** for your domains
-3. **Use HTTPS** in production
-4. **Monitor rate limiting** and adjust as needed
-5. **Set up alerting** for health check failures
-
-### Security
-
-1. **Regularly update dependencies**
-2. **Monitor security headers**
-3. **Use strong secrets** for cookies and sessions
-4. **Implement proper authentication**
-5. **Monitor for suspicious activity**
-
-This server is now production-ready with comprehensive browser and device compatibility, security best practices, and monitoring capabilities.
+- Make source edits in `src`, not `dist`.
+- Add new feature routes in the relevant module and mount them in `src/routes/v1/index.ts`.
+- Keep business logic in services and data access in repositories when the module already follows that pattern.
+- Put shared middleware, errors, and utilities under `src/shared`.
+- Run `npm run build` before handing off backend changes.

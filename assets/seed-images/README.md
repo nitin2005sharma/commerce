@@ -1,65 +1,59 @@
 # Seed Images
 
-This directory contains images for seeded data in the e-commerce platform.
+This folder stores optional image files used by the database seeder.
 
-## 📁 Directory Structure
+The app can still work without these files because the frontend has fallback image handling and placeholder generation. Add real images here when you want seeded data to look closer to production/demo content.
 
-```
+## Folder Layout
+
+```text
 assets/seed-images/
-├── users/           # User avatar images
-├── products/        # Product images
-└── categories/      # Category banner images
+|-- users/        # User avatars
+|-- products/     # Product images
+`-- categories/   # Category banners
 ```
 
-## 🖼️ Adding Custom Images
+## Expected Files
 
-### **User Avatars**
+User avatars:
 
-Place user avatar images in the `users/` directory:
+- `users/superadmin.jpg`
+- `users/admin.jpg`
+- `users/user.jpg`
 
-- `superadmin.jpg` - Superadmin avatar
-- `admin.jpg` - Admin avatar
-- `user.jpg` - Regular user avatar
+Product images depend on the seed script. Use descriptive names that match the product or SKU when adding new seed data.
 
-### **Product Images**
+Category images should match category slugs when possible, for example:
 
-Place product images in the `products/` directory:
+- `categories/electronics.jpg`
+- `categories/clothing.jpg`
+- `categories/footwear.jpg`
+- `categories/furniture.jpg`
+- `categories/accessories.jpg`
 
-- `smartphone-1.jpg` - Main product image
-- `smartphone-2.jpg` - Secondary product image
-- `smartphone-3.jpg` - Additional product image
-- `smartphone-4.jpg` - Additional product image
+## Recommended Sizes
 
-### **Category Images**
+| Image type | Suggested size | Notes |
+| --- | --- | --- |
+| User avatar | `200x200` | Square |
+| Product image | `800x800` | Square, clean background |
+| Category banner | `1200x700` | Landscape |
 
-Place category banner images in the `categories/` directory:
+## How To Use
 
-- `electronics.jpg` - Electronics category banner
+1. Add images to the correct folder.
+2. Run the backend seeder:
 
-## 📋 Image Requirements
+```powershell
+Set-Location .\src\server
+npm run seed
+```
 
-- **Format**: JPG/JPEG recommended
-- **User Avatars**: 200x200px (square)
-- **Product Images**: 400x400px (square)
-- **Category Images**: 400x300px (landscape)
+3. Open the storefront or admin dashboard and verify the seeded records.
 
-## 🔄 Fallback System
+## Notes
 
-If local images don't exist, the seeder will automatically use:
-
-- **User Avatars**: UI Avatars API (generated avatars with initials)
-- **Product Images**: Picsum Photos (random placeholder images)
-- **Category Images**: Picsum Photos (random placeholder images)
-
-## 🚀 Usage
-
-1. Add your custom images to the appropriate directories
-2. Run the seeder: `cd src/server && npm run seed`
-3. The seeder will automatically use your custom images
-
-## 💡 Tips
-
-- Use descriptive filenames that match the seeder expectations
-- Optimize images for web (compress, resize appropriately)
-- Keep file sizes reasonable (< 500KB per image)
-- Use consistent aspect ratios for better UX
+- Keep images compressed for web use.
+- Prefer `.jpg` or `.webp`.
+- Avoid very large files in the repository.
+- The mirrored public folder at `src/client/public/assets/seed-images` is for frontend-served assets.

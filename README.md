@@ -1,161 +1,109 @@
 # Full-Stack Ecommerce Platform
 
-This project is a modern ecommerce platform built with a `Next.js` frontend and an `Express + Prisma` backend. It supports a customer storefront, admin dashboard, Stripe checkout, real-time chat, shared-cart collaboration, guided goal-based shopping, checkout recovery, order tracking, and post-purchase support workflows.
+This project is a full-stack ecommerce application with a Next.js storefront, an Express and Prisma backend, PostgreSQL data storage, Stripe checkout, real-time support, shared-cart collaboration, guided bundle building, and post-purchase success tracking.
+
+The current product direction is not only "browse products and buy." It adds workflows that help a shopper finish a real shopping task: build a bundle, compare choices, collaborate with other people, recover checkout, track delivery, and confirm whether the purchase solved the goal.
 
 ## Documentation
 
-The complete structured documentation is in [`docs/README.md`](./docs/README.md).
+The complete structured documentation lives in [docs/README.md](./docs/README.md).
 
-- [`docs/FEATURES.md`](./docs/FEATURES.md): feature-by-feature application guide
-- [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md): frontend, backend, data, API, and integration architecture
-- [`docs/FILE_STRUCTURE.md`](./docs/FILE_STRUCTURE.md): route, module, and important file map
-- [`docs/API_REFERENCE.md`](./docs/API_REFERENCE.md): REST, GraphQL, RTK Query, and Socket.IO reference
-- [`docs/DATA_MODEL.md`](./docs/DATA_MODEL.md): Prisma models, enums, and relationships
-- [`docs/RUNBOOK.md`](./docs/RUNBOOK.md): setup, commands, verification, and troubleshooting
+- [Features](./docs/FEATURES.md): complete feature guide
+- [Architecture](./docs/ARCHITECTURE.md): frontend, backend, data, API, and integrations
+- [File Structure](./docs/FILE_STRUCTURE.md): route, module, and important file map
+- [API Reference](./docs/API_REFERENCE.md): REST, GraphQL, RTK Query, and Socket.IO reference
+- [Data Model](./docs/DATA_MODEL.md): Prisma models, enums, and relationships
+- [Runbook](./docs/RUNBOOK.md): setup, commands, verification, and troubleshooting
 
-## Overview
+## What The App Includes
 
-- `src/client` contains the Next.js frontend
-- `src/server` contains the Express, Prisma, and Socket.IO backend
-- `PostgreSQL` is the primary database
-- `Redis` supports runtime infrastructure such as sessions and cache-style flows
-
-## Core Features
-
-- Product browsing, filtering, variants, reviews, and category management
-- Customer authentication with email/password and social login support
-- Persistent carts, checkout attempts, checkout recovery, and Stripe payments
-- Orders, payments, shipments, transactions, and public order tracking
-- Live support chat with Socket.IO and WebRTC signaling
-- Shared-cart collaboration with votes, notes, and real-time updates
-- Goal-based bundle building for guided shopping
-- Post-purchase order companion and goal success tracking
-- Admin dashboards for products, categories, attributes, inventory, users, logs, reports, chats, analytics, and transactions
-
-## Architecture
-
-```mermaid
-flowchart LR
-    U["Customer"] --> FE["Next.js Frontend"]
-    A["Admin / Support"] --> FE
-
-    FE --> API["Express API + GraphQL + Socket.IO"]
-
-    API --> AUTH["Auth Module"]
-    API --> SHOP["Catalog / Cart / Checkout / Orders"]
-    API --> LIVE["Chat / Shared Cart / Order Updates"]
-    API --> OPS["Analytics / Reports / Logs"]
-
-    AUTH --> DB["PostgreSQL via Prisma"]
-    SHOP --> DB
-    LIVE --> DB
-    OPS --> DB
-
-    API --> REDIS["Redis"]
-    API --> STRIPE["Stripe"]
-    API --> CLOUD["Cloudinary"]
-
-    API -. realtime .-> FE
-```
+- Customer storefront with home, shop, product detail, cart, support pages, and tracking
+- Authentication with user/admin/superadmin roles
+- Product catalog with categories, attributes, variants, images, stock, restocks, and reviews
+- Stripe checkout with checkout recovery and support handoff
+- Orders, payments, shipments, transactions, and public order lookup
+- Goal-based bundle builder for shopping plans
+- Custom bundle builder for user-defined item lists
+- Smart bundle comparison between current and saved bundles
+- Shared carts with votes, notes, item assignments, messages, invite settings, and checkout locking
+- Shopping help page backed by a server-side assistant module
+- Order companion with setup, care, warranty, reorder, support, and reminders
+- Goal success tracking after purchase
+- Real-time support chat with Socket.IO and call UI pieces
+- Admin dashboard for products, categories, attributes, inventory, users, logs, reports, chats, analytics, and transactions
 
 ## Tech Stack
 
-### Frontend
-
-- `Next.js 15`
-- `React 19`
-- `TypeScript`
-- `Tailwind CSS 4`
-- `Redux Toolkit` and `RTK Query`
-- `Apollo Client`
-- `Framer Motion`
-- `ApexCharts`
-- `Socket.IO Client`
-- `Stripe.js`
-
-### Backend
-
-- `Node.js`
-- `Express`
-- `TypeScript`
-- `Prisma ORM`
-- `Apollo Server`
-- `Socket.IO`
-- `Passport`
-- `JWT`
-- `Winston`
-- `Swagger`
-- `Nodemailer`
-
-### Data and Services
-
-- `PostgreSQL`
-- `Redis`
-- `Stripe`
-- `Cloudinary`
-- `Google OAuth`
-- `Facebook OAuth`
-- `Twitter OAuth`
+| Area | Stack |
+| --- | --- |
+| Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS |
+| Client data | Redux Toolkit, RTK Query, Apollo Client |
+| Realtime | Socket.IO |
+| Backend | Node.js, Express, TypeScript |
+| Database | PostgreSQL with Prisma |
+| Payments | Stripe |
+| Sessions/cache | Redis |
+| Auth | JWT, sessions, Passport social auth |
+| Files/images | Cloudinary integration |
+| Observability | Winston, Morgan, logs dashboard |
+| Docs/API | Swagger and GraphQL |
 
 ## Project Structure
 
 ```text
 ecommerce/
+|-- docs/                         # Current structured documentation
+|-- assets/seed-images/           # Optional seed images
 |-- src/
-|   |-- client/
+|   |-- client/                   # Next.js frontend
 |   |   |-- app/
 |   |   |-- public/
-|   |   `-- package.json
-|   |-- server/
-|   |   |-- prisma/
-|   |   |-- seeds/
-|   |   |-- src/
-|   |   |   |-- infra/
-|   |   |   |-- modules/
-|   |   |   `-- shared/
-|   |   `-- package.json
-|   |-- .env.example
-|   |-- client/.env.example
-|   `-- server/.env.example
-|-- assets/
-|-- collections/
-`-- README.md
+|   |   |-- package.json
+|   |   `-- README.md
+|   `-- server/                   # Express/Prisma backend
+|       |-- prisma/
+|       |-- seeds/
+|       |-- src/
+|       |   |-- infra/
+|       |   |-- modules/
+|       |   |-- routes/
+|       |   `-- shared/
+|       |-- package.json
+|       `-- README.md
+|-- README.md
+`-- package.json
 ```
+
+## Main Frontend Routes
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Home storefront |
+| `/shop` | Product listing, filtering, and discovery |
+| `/product/[slug]` | Product detail |
+| `/cart` | Cart and checkout entry |
+| `/cart/share/[code]` | Shared cart collaboration |
+| `/goals` | Shopping goal templates |
+| `/goals/[slug]` | Goal bundle builder and comparison |
+| `/bundles` | Custom bundle builder and comparison |
+| `/assistant` | Shopping help |
+| `/track-order` | Public order lookup |
+| `/orders` and `/orders/[orderId]` | User orders, companion, and goal success |
+| `/dashboard/*` | Admin dashboard |
 
 ## Main Backend Modules
 
-- `auth`
-- `user`
-- `product`
-- `category`
-- `attribute`
-- `variant`
-- `cart`
-- `checkout`
-- `order`
-- `payment`
-- `shipment`
-- `transaction`
-- `review`
-- `chat`
-- `goal`
-- `shared-cart`
-- `analytics`
-- `reports`
-- `logs`
-- `webhook`
-- `address`
+The backend modules live in `src/server/src/modules`.
+
+```text
+address, analytics, attribute, auth, cart, category, chat, checkout,
+goal, logs, order, payment, product, reports, review, section,
+shared-cart, shipment, shopping-assistant, transaction, user, variant, webhook
+```
 
 ## Local Setup
 
-### Prerequisites
-
-- `Node.js` 20+ or newer
-- `npm`
-- `PostgreSQL`
-- `Redis`
-
-### 1. Install dependencies
+Install dependencies:
 
 ```powershell
 npm install
@@ -166,62 +114,28 @@ npm install
 Set-Location ..\..
 ```
 
-### 2. Configure environment files
+Create environment files from:
 
-Copy these example files and fill in your real values:
+- `src/client/.env.example`
+- `src/server/.env.example`
 
-- [src/.env.example](./src/.env.example)
-- [src/client/.env.example](./src/client/.env.example)
-- [src/server/.env.example](./src/server/.env.example)
-
-Typical local values:
-
-```env
-# src/server/.env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/ss_commerce
-NODE_ENV=development
-PORT=5000
-REDIS_URL=redis://localhost:6379
-CLIENT_URL_DEV=http://localhost:3000
-ALLOWED_ORIGINS=http://localhost:3000
-ACCESS_TOKEN_SECRET=change-me
-REFRESH_TOKEN_SECRET=change-me
-SESSION_SECRET=change-me
-COOKIE_SECRET=change-me
-```
-
-```env
-# src/client/.env.local
-NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
-NEXT_PUBLIC_API_URL_DEV=http://localhost:5000/api/v1
-NEXT_PUBLIC_API_URL_PROD=http://localhost:5000/api/v1
-NODE_ENV=development
-```
-
-### 3. Run Prisma migrations
+Run database setup:
 
 ```powershell
 Set-Location .\src\server
-npx prisma migrate dev
 npx prisma generate
-```
-
-### 4. Seed the database
-
-```powershell
+npx prisma migrate dev
 npm run seed
 ```
 
-### 5. Start the app
-
-Backend:
+Start backend:
 
 ```powershell
 Set-Location .\src\server
 npm run dev
 ```
 
-Frontend:
+Start frontend:
 
 ```powershell
 Set-Location .\src\client
@@ -233,51 +147,41 @@ npm run dev
 - Frontend: `http://localhost:3000`
 - Backend API: `http://localhost:5000/api/v1`
 - GraphQL: `http://localhost:5000/api/v1/graphql`
-- Swagger docs: `http://localhost:5000/api-docs`
+- Swagger: `http://localhost:5000/api-docs`
 - Health check: `http://localhost:5000/health`
 
-## Key User Flows
+## Test Accounts
 
-### Customer
+After running the seeder:
 
-- Browse products and categories
-- Add items to cart
-- Complete checkout
-- View order details and tracking
-- Use support chat when needed
+| Role | Email | Password |
+| --- | --- | --- |
+| Superadmin | `superadmin@example.com` | `password123` |
+| Admin | `admin@example.com` | `password123` |
+| User | `user@example.com` | `password123` |
 
-### Shared Cart
+## Verification
 
-- Create a shared cart from the normal cart
-- Send the share link/code
-- Collaborators join, vote, add notes, and update quantities live
+Client:
 
-### Goal-Based Shopping
+```powershell
+Set-Location .\src\client
+npx tsc --noEmit
+npm run lint
+npm run build
+```
 
-- Open a goal template
-- Choose a budget
-- Receive a recommended bundle from in-stock products
+Server:
 
-### Admin
-
-- Manage products, categories, attributes, and inventory
-- Track transactions and update shipping progress
-- Respond to support chats
-- View analytics, reports, and logs
-
-## Documentation In This Repo
-
-- [APPLICATION_DOCUMENTATION.md](./APPLICATION_DOCUMENTATION.md)
-- [FEATURE_STATUS_REPORT.md](./FEATURE_STATUS_REPORT.md)
-- [FULL_STACK_ECOMMERCE_PROJECT_REPORT.md](./FULL_STACK_ECOMMERCE_PROJECT_REPORT.md)
-- [FULL_STACK_ECOMMERCE_PROJECT_REPORT.docx](./FULL_STACK_ECOMMERCE_PROJECT_REPORT.docx)
+```powershell
+Set-Location .\src\server
+npm run build
+```
 
 ## Notes
 
-- Some features depend on external credentials being configured correctly, especially `Stripe`, `Cloudinary`, social login, and SMTP email.
-- Public order tracking is a real data-backed lookup flow.
-- Signed-in order pages support live progress updates through Socket.IO when tracking events are emitted by the backend.
-
-## License
-
-This repository includes a [LICENSE](./LICENSE) file.
+- Make source changes in `src/server/src`, not `src/server/dist`.
+- The client API layer is in `src/client/app/store/apis`.
+- The Prisma schema is `src/server/prisma/schema.prisma`.
+- Some flows need external credentials: Stripe, Redis, Cloudinary, SMTP, and social auth providers.
+- Older root documents are still present for study/report context, but the `docs/` folder is the current organized reference.
