@@ -340,14 +340,15 @@ Key persisted domains include:
 
 The overall architecture looks like this:
 
-1. The frontend renders the storefront and dashboard in Next.js.
-2. REST requests are handled with RTK Query.
-3. GraphQL queries are handled with Apollo Client.
-4. The Express backend serves business logic and data access.
-5. Prisma reads and writes PostgreSQL data.
+1. The frontend renders the storefront, bundle builders, shared carts, user order pages, support chat, and admin dashboard in Next.js.
+2. REST requests are handled with RTK Query API slices in `src/client/app/store/apis`.
+3. GraphQL queries are handled with Apollo Client for dashboard/catalog analytics areas.
+4. The Express backend serves business logic for catalog, cart, checkout, orders, goals, shared carts, support, analytics, and admin operations.
+5. Prisma reads and writes PostgreSQL data for users, catalog, carts, orders, payments, goal bundles, shared carts, companion tasks, and goal success records.
 6. Redis supports runtime/session-style infrastructure.
-7. Socket.IO pushes real-time updates for chat, orders, and shared carts.
+7. Socket.IO pushes real-time updates for chat, order/transaction style events, and collaboration flows.
 8. Stripe and webhook handlers complete payment-related flows.
+9. Client-side smart bundle comparison uses current and saved bundle data to compare price, budget left, locked picks, confidence, and coverage.
 
 ## 6. Important Business Modules in the Backend
 
@@ -373,6 +374,7 @@ Current backend modules include:
 - `chat`
 - `goal`
 - `shared-cart`
+- `shopping-assistant`
 - `webhook`
 - `address`
 
@@ -384,8 +386,12 @@ Compared with a basic e-commerce starter app, this codebase also includes:
 
 - collaborative shared carts
 - goal-based guided bundle generation
+- custom bundle building
+- smart bundle comparison
 - checkout recovery and support handoff
 - order companions and reminders
+- goal success tracking
+- shopping help
 - real-time support chat
 - WebRTC signaling for support calls
 - admin analytics and logs
@@ -395,4 +401,4 @@ Compared with a basic e-commerce starter app, this codebase also includes:
 
 If you want a one-paragraph explanation of the product, this is the most accurate summary:
 
-This application is a modern full-stack e-commerce platform built with Next.js on the frontend and Express/Prisma on the backend. It supports product browsing, authentication, cart and Stripe checkout, orders, payments, shipments, reviews, admin operations, analytics, and real-time support chat. It also includes advanced commerce features such as collaborative shared carts, goal-based bundle recommendations, checkout recovery, and post-purchase order companion workflows.
+This application is a modern full-stack e-commerce platform built with Next.js on the frontend and Express/Prisma on the backend. It supports product browsing, authentication, cart and Stripe checkout, orders, payments, shipments, reviews, admin operations, analytics, and real-time support chat. It also includes advanced commerce features such as collaborative shared carts, goal-based and custom bundle building, smart bundle comparison, checkout recovery, shopping help, order companion workflows, reminders, and goal success tracking after purchase.

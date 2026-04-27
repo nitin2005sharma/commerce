@@ -1,6 +1,6 @@
 # Architecture
 
-Last updated: April 26, 2026
+Last updated: April 27, 2026
 
 ## System Overview
 
@@ -8,22 +8,57 @@ The application is split into a Next.js frontend and an Express backend.
 
 ```mermaid
 flowchart LR
-  Browser["Browser / Next.js App"] --> RTK["RTK Query API slices"]
-  Browser --> ApolloClient["Apollo Client"]
-  Browser --> SocketClient["Socket.IO client"]
-  RTK --> REST["Express REST API /api/v1"]
+  Customer["Customer / Guest"] --> Client["Next.js Client"]
+  Admin["Admin / Support"] --> Client
+
+  Client --> PublicUX["Storefront<br/>Shop / Product / Cart / Goals / Bundles"]
+  Client --> PrivateUX["Account + Dashboard<br/>Orders / Chat / Admin"]
+  Client --> RTK["RTK Query REST Slices"]
+  Client --> ApolloClient["Apollo Client"]
+  Client --> SocketClient["Socket.IO Client"]
+
+  RTK --> REST["Express REST API<br/>/api/v1"]
   ApolloClient --> GraphQL["Apollo GraphQL API"]
-  SocketClient --> SocketServer["Socket.IO server"]
-  REST --> Services["Server services"]
-  GraphQL --> Services
-  SocketServer --> Services
-  Services --> Prisma["Prisma Client"]
+  SocketClient --> SocketServer["Socket.IO Server"]
+
+  REST --> Catalog["Catalog<br/>Products / Categories / Attributes / Variants"]
+  REST --> Commerce["Commerce<br/>Cart / Checkout / Orders / Payments / Shipments"]
+  REST --> Guided["Guided Shopping<br/>Goals / Custom Bundles / Smart Comparison"]
+  REST --> Collaboration["Collaboration<br/>Shared Carts / Chat / Assignments"]
+  REST --> PostPurchase["Post-Purchase<br/>Order Companion / Goal Success / Reminders"]
+  REST --> Ops["Operations<br/>Analytics / Reports / Logs / Users"]
+
+  GraphQL --> Ops
+  SocketServer --> Collaboration
+  SocketServer --> Commerce
+
+  Catalog --> Prisma["Prisma Client"]
+  Commerce --> Prisma
+  Guided --> Prisma
+  Collaboration --> Prisma
+  PostPurchase --> Prisma
+  Ops --> Prisma
   Prisma --> Postgres["PostgreSQL"]
-  Services --> Stripe["Stripe"]
-  Services --> Redis["Redis sessions/cache"]
-  Services --> Cloudinary["Cloudinary"]
-  Services --> Email["SMTP email"]
+
+  Commerce --> Stripe["Stripe"]
+  REST --> Redis["Redis Sessions / Cache"]
+  REST --> Cloudinary["Cloudinary"]
+  REST --> Email["SMTP Email"]
 ```
+
+## Current Feature Architecture
+
+The app is organized around product surfaces rather than one generic catalog page.
+
+| Surface | Frontend paths | Backend modules | Data areas |
+| --- | --- | --- | --- |
+| Storefront | `app/(public)/shop`, `app/(public)/product`, `app/(public)/cart` | `product`, `category`, `variant`, `cart`, `review` | products, variants, categories, reviews, carts |
+| Guided shopping | `app/(public)/goals`, `app/(public)/bundles` | `goal`, `cart`, `shared-cart` | goal templates, goal bundles, bundle items |
+| Smart comparison | `app/utils/smartBundleComparison.ts`, goal/custom bundle pages | client-side utility using bundle API data | totals, budget left, locked picks, confidence, coverage |
+| Collaboration | `app/(public)/cart/share/[code]`, chat UI | `shared-cart`, `chat` | shared carts, members, votes, notes, assignments, messages |
+| Checkout and orders | cart, payment pages, order pages | `checkout`, `order`, `payment`, `shipment`, `transaction`, `webhook` | checkout attempts, recovery, orders, payments, shipments |
+| Post-purchase success | `orders/[orderId]`, `OrderCompanionCard`, `GoalSuccessTrackerCard` | `order` | companions, tasks, reminders, goal success check-ins |
+| Admin operations | `app/(private)/dashboard` | `analytics`, `reports`, `logs`, `user`, catalog modules | dashboards, reports, logs, users |
 
 ## Frontend
 
@@ -100,6 +135,29 @@ Typical real-time flow:
 1. Frontend connects through Socket.IO.
 2. Chat/order/transaction modules emit or listen to events.
 3. Socket manager coordinates active server-side IO.
+
+## Smart Bundle Comparison Flow
+
+Smart bundle comparison is currently client-side logic layered over saved/current bundle data.
+
+1. A user builds or loads a current bundle from `/goals/[slug]` or `/bundles`.
+2. The page fetches saved bundles through `GoalApi.ts`.
+3. The user chooses `Compare` on a saved bundle.
+4. The page calls `buildSmartBundleComparison` from `app/utils/smartBundleComparison.ts`.
+5. The helper compares total price, budget left, item count, locked picks, confidence, and brief coverage.
+6. The UI renders metric winners, current/saved win counts, ties, verdict, and standout notes.
+
+This feature does not require a dedicated backend route because it compares bundle data the goal APIs already return.
+
+## Goal Success And Order Companion Flow
+
+Post-purchase features live on the order detail page.
+
+1. User opens `/orders/[orderId]`.
+2. The client calls order APIs for detail, companion data, and goal success state.
+3. `OrderCompanionCard` shows setup, care, warranty, reorder, support, and reminder tasks.
+4. `GoalSuccessTrackerCard` lets the user record delivery/setup/follow-up outcome.
+5. Server order services validate ownership, update goal success records, and create interventions where needed.
 
 ## Middleware Stack
 

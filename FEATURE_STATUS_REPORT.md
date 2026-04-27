@@ -1,6 +1,6 @@
 # Feature Status Report
 
-As of April 6, 2026, this report reflects what is actually verified in the current local workspace, not just what is implemented in code.
+As of April 27, 2026, this report reflects what is actually verified in the current local workspace, not just what is implemented in code.
 
 ## Status Legend
 
@@ -17,12 +17,14 @@ Status: `Working`
 
 What was verified:
 
+- `src/client` passes `npx tsc --noEmit`
+- `src/client` passes `npm run lint`
 - `src/client` builds successfully with `npm run build`
-- the build currently generates storefront, support, goals, shared-cart, order, and admin dashboard routes
+- the build generates storefront, support, goals, bundles, shared-cart, order, shopping help, and admin dashboard routes
 
 Important note:
 
-- this build currently skips linting and type validation, so a passing build does not prove those checks are clean
+- linting and type validation are no longer being bypassed in the client build configuration
 
 ### 1.2 Backend TypeScript build
 
@@ -225,6 +227,8 @@ Implemented areas:
 - goal templates
 - step-based bundle generation
 - budget allocation and fallback keyword logic
+- saved bundle comparison entry points
+- item locking, variant swapping, and per-step regeneration
 
 Representative implementation paths:
 
@@ -236,7 +240,88 @@ Why not fully verified:
 
 - the flow depends on live product data and backend availability, and it was not exercised end to end locally
 
-### 3.6 Analytics, reports, logs, and GraphQL
+### 3.6 Custom bundle builder and smart comparison
+
+Status: `Implemented but not fully verified`
+
+Implemented areas:
+
+- custom bundle brief form
+- requested items with quantity, keywords, categories, priority, and item budget
+- frequent bundle seeding
+- item locking and item-level regeneration
+- apply bundle to cart
+- share bundle as a shared cart
+- compare current bundle against a saved bundle
+- metric comparison for total price, budget left, items covered, locked picks, confidence, and brief coverage
+
+Representative implementation paths:
+
+- `src/client/app/(public)/bundles/page.tsx`
+- `src/client/app/(public)/goals/[slug]/page.tsx`
+- `src/client/app/utils/smartBundleComparison.ts`
+- `src/client/app/store/apis/GoalApi.ts`
+- `src/server/src/modules/goal/goal.service.ts`
+
+What was verified:
+
+- client TypeScript passed
+- client lint passed
+- client production build passed
+
+Why not fully verified:
+
+- a full browser test with real saved bundle data was not completed in this workspace
+
+### 3.7 Shopping help
+
+Status: `Implemented but not fully verified`
+
+Implemented areas:
+
+- public shopping help page
+- RTK Query endpoint for shopping assistant messages
+- backend shopping assistant module
+
+Representative implementation paths:
+
+- `src/client/app/(public)/assistant/page.tsx`
+- `src/client/app/store/apis/ShoppingAssistantApi.ts`
+- `src/server/src/modules/shopping-assistant`
+
+Why not fully verified:
+
+- the full assistant conversation flow was not exercised end to end against a healthy local backend
+
+### 3.8 Order companion and goal success tracking
+
+Status: `Implemented but not fully verified`
+
+Implemented areas:
+
+- order companion card
+- companion tasks
+- reminders
+- support handoff
+- goal success check-in fetch and submit endpoints
+- delivery/setup/follow-up stage tracking
+- per-step success tracking
+- interventions for review, reminder, support, care guide, missing step, exchange, and curation
+
+Representative implementation paths:
+
+- `src/client/app/(private)/(user)/orders/OrderCompanionCard.tsx`
+- `src/client/app/(private)/(user)/orders/GoalSuccessTrackerCard.tsx`
+- `src/client/app/store/apis/OrderApi.ts`
+- `src/server/src/modules/order/order.routes.ts`
+- `src/server/src/modules/order/order.service.ts`
+- `src/server/src/modules/order/goalSuccess.helpers.ts`
+
+Why not fully verified:
+
+- the UI and endpoints are wired, but a live database-backed order success check-in was not completed in this workspace
+
+### 3.9 Analytics, reports, logs, and GraphQL
 
 Status: `Implemented but not fully verified`
 

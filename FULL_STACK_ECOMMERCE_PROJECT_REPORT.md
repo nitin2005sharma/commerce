@@ -78,7 +78,7 @@ At a high level, the application works as follows:
 
 ```mermaid
 flowchart LR
-    U["Customer / Guest User"] --> FE["Next.js Frontend<br/>Storefront / Orders / Support / Shared Cart"]
+    U["Customer / Guest User"] --> FE["Next.js Frontend<br/>Storefront / Goals / Bundles / Orders / Shared Cart"]
     A["Admin / Support Agent"] --> FEA["Next.js Frontend<br/>Dashboard / Chats / Transactions / Reports"]
 
     FE --> API["Express API Layer<br/>REST + GraphQL + Socket.IO"]
@@ -87,13 +87,17 @@ flowchart LR
     API --> AUTH["Auth Module<br/>JWT + Cookies + Passport"]
     API --> CATALOG["Catalog Modules<br/>Product / Category / Attribute / Variant"]
     API --> COMMERCE["Commerce Modules<br/>Cart / Checkout / Order / Payment / Shipment / Transaction"]
-    API --> COLLAB["Collaboration Modules<br/>Shared Cart / Chat / Goal / Companion"]
+    API --> GUIDED["Guided Shopping Modules<br/>Goal Bundles / Custom Bundles"]
+    API --> COLLAB["Collaboration Modules<br/>Shared Cart / Chat / Assignments"]
+    API --> SUCCESS["Post-Purchase Modules<br/>Order Companion / Goal Success / Reminders"]
     API --> OPS["Ops Modules<br/>Analytics / Reports / Logs"]
 
     AUTH --> DB["PostgreSQL via Prisma"]
     CATALOG --> DB
     COMMERCE --> DB
+    GUIDED --> DB
     COLLAB --> DB
+    SUCCESS --> DB
     OPS --> DB
 
     API --> REDIS["Redis<br/>Session / Cache Support"]
@@ -105,6 +109,8 @@ flowchart LR
     SOCKET -. updates .-> FE
     SOCKET -. updates .-> FEA
 ```
+
+Smart bundle comparison is a client-side decision layer that uses the current bundle and saved bundle data returned by the goal APIs. It compares total price, budget left, item count, locked picks, confidence, and brief coverage, then displays a verdict and standout notes in the goal and custom bundle pages.
 
 ## 7. Frontend Architecture
 
@@ -124,6 +130,10 @@ The frontend is implemented with Next.js App Router and TypeScript. It is respon
 - `src/client/app/store/apis` for RTK Query API slices
 - `src/client/app/components` for reusable UI components
 - `src/client/app/lib/constants` for shared configuration like API and socket URLs
+- `src/client/app/(public)/goals/[slug]` for goal bundle creation and comparison
+- `src/client/app/(public)/bundles` for custom bundle creation and comparison
+- `src/client/app/utils/smartBundleComparison.ts` for smart bundle comparison logic
+- `src/client/app/(private)/(user)/orders` for order companion and goal success tracking
 
 ## 8. Backend Architecture
 
@@ -155,6 +165,8 @@ The backend is built with Express and modular domain-based services. Each major 
 - `chat`
 - `goal`
 - `shared-cart`
+- `shopping-assistant`
+- `webhook`
 - `analytics`
 - `reports`
 - `logs`

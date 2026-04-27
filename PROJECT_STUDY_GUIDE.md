@@ -23,6 +23,8 @@ It is not only a normal online store. It also includes:
 - WebRTC support calling
 - shared cart collaboration
 - goal-based shopping
+- custom bundle building
+- smart bundle comparison
 - checkout recovery
 - order tracking
 - post-purchase support features
@@ -50,12 +52,14 @@ flowchart LR
     U["Customer"] --> FE["Next.js Frontend"]
     A["Admin / Support"] --> FE
     FE --> API["Express Backend API"]
+    FE --> COMPARE["Smart Bundle Comparison"]
     API --> DB["PostgreSQL via Prisma"]
     API --> REDIS["Redis"]
     API --> STRIPE["Stripe"]
     API --> CLOUD["Cloudinary"]
     API --> SOCKET["Socket.IO"]
     SOCKET -. live events .-> FE
+    COMPARE -. compares saved and current bundles .-> FE
 ```
 
 ## 4. How the Project Works
@@ -718,7 +722,7 @@ Main files:
 
 What it does:
 
-- asks whether an order actually solved the user’s original goal
+- asks whether an order actually solved the user's original goal
 
 How we do it:
 
@@ -733,7 +737,29 @@ Main files:
 - [GoalSuccessTrackerCard.tsx](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/client/app/(private)/(user)/orders/GoalSuccessTrackerCard.tsx)
 - [order.service.ts](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/server/src/modules/order/order.service.ts)
 
-### 9.13 Order Companion
+### 9.13 Smart Bundle Comparison
+
+What it does:
+
+- compares the current bundle with a saved bundle so the user can decide which one is a better fit
+
+How we do it:
+
+- the goal and custom bundle pages already have current bundle data and saved bundle data
+- `smartBundleComparison.ts` compares total price, budget left, item count, locked picks, confidence, and brief coverage
+- the UI shows the winning bundle per metric, total wins, ties, a verdict, and notes
+
+Why we do it:
+
+- it helps users choose with less regret instead of only seeing a list of products
+
+Main files:
+
+- [smartBundleComparison.ts](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/client/app/utils/smartBundleComparison.ts)
+- [bundles/page.tsx](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/client/app/(public)/bundles/page.tsx)
+- [goals/[slug]/page.tsx](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/client/app/(public)/goals/[slug]/page.tsx)
+
+### 9.14 Order Companion
 
 What it does:
 
@@ -751,7 +777,7 @@ Main files:
 
 - [order.service.ts](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/server/src/modules/order/order.service.ts)
 
-### 9.14 Admin Dashboard
+### 9.15 Admin Dashboard
 
 What it does:
 
@@ -771,7 +797,7 @@ Main files:
 - [dashboard/analytics/page.tsx](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/client/app/(private)/dashboard/analytics/page.tsx)
 - [dashboard/chats/page.tsx](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/client/app/(private)/dashboard/chats/page.tsx)
 
-### 9.15 Analytics
+### 9.16 Analytics
 
 What it does:
 
@@ -790,7 +816,7 @@ Main files:
 - [analytics.routes.ts](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/server/src/modules/analytics/analytics.routes.ts)
 - [AnalyticsApi.ts](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/client/app/store/apis/AnalyticsApi.ts)
 
-### 9.16 Reports
+### 9.17 Reports
 
 What it does:
 
@@ -809,7 +835,7 @@ Main files:
 - [reports.routes.ts](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/server/src/modules/reports/reports.routes.ts)
 - [ReportsApi.ts](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/client/app/store/apis/ReportsApi.ts)
 
-### 9.17 Logs
+### 9.18 Logs
 
 What it does:
 
@@ -827,7 +853,7 @@ Main files:
 
 - [logs.routes.ts](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/server/src/modules/logs/logs.routes.ts)
 
-### 9.18 Webhooks
+### 9.19 Webhooks
 
 What it does:
 
@@ -1473,6 +1499,23 @@ Important meaning:
 
 - goal templates are stored beforehand
 - final goal bundles are usually generated at runtime
+
+### How custom bundles and smart comparison are used
+
+User flow:
+
+1. user opens [bundles/page.tsx](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/client/app/(public)/bundles/page.tsx)
+2. user enters a bundle name, request, budget, and requested items
+3. backend assembles a custom bundle from matching products
+4. user can lock items, regenerate weak items, copy the summary, apply the bundle to cart, or share it
+5. if saved bundles exist, user clicks `Compare`
+6. [smartBundleComparison.ts](C:/Users/nitin200527/Desktop/commrce/ecommerce/src/client/app/utils/smartBundleComparison.ts) compares the current bundle with the saved bundle
+
+Important meaning:
+
+- smart comparison does not need a separate backend endpoint
+- it works from current and saved bundle data already returned by the goal APIs
+- it helps the user choose between drafts by price, budget room, coverage, locked picks, and confidence
 
 ### How goal success check-in is used
 
